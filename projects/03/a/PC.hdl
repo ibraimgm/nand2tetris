@@ -16,5 +16,21 @@ CHIP PC {
     OUT out[16];
 
     PARTS:
-    // Put your code here:
+    // increment the 'old' value, if applicable
+    Inc16(in=oldOutput, out=plusOne);
+    Mux16(a=oldOutput, b=plusOne, sel=inc, out=outputInc);
+
+    // load a new value, if applicable
+    Mux16(a=outputInc, b=in, sel=load, out=loadOut);
+
+    // reset to zero, if applicable
+    Mux16(a=loadOut, b=false, sel=reset, out=newInput);
+
+    // save the changes
+    Or(a=load, b=inc, out=loadOrInc);
+    Or(a=loadOrInc, b=reset, out=saveChanges);
+    Register(in=newInput, load=saveChanges, out=oldOutput);
+
+    // hdl hack
+    Or16(a=oldOutput, b=false, out=out);
 }
